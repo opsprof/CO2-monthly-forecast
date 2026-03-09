@@ -1,0 +1,16 @@
+﻿{
+  "name": "NOAA CO2 Monthly Forecast",
+  "short_name": "CO2 Forecast",
+  "description": "Live NOAA monthly CO2 readings with Holt-Winters forecasts and 95% prediction intervals.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f8f4ec",
+  "theme_color": "#0d6e8a",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

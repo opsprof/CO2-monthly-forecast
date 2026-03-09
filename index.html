@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOAA CO2 Monthly Forecast</title>
+  <meta name="description" content="Live NOAA monthly CO2 readings with full-history charting, Holt-Winters six-month forecasts, and 95% prediction intervals.">
+  <meta name="theme-color" content="#0d6e8a">
+  <meta property="og:title" content="NOAA CO2 Monthly Forecast">
+  <meta property="og:description" content="Track NOAA monthly CO2 readings and view six-month Holt-Winters forecasts with prediction intervals.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="manifest" href="./site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Atmospheric CO2 Monitor</p>
+        <h1>Monthly CO2 readings with six-month Holt-Winters forecasts</h1>
+        <p class="lede">
+          This app refreshes from NOAA Global Monitoring Laboratory each time it opens,
+          charts the full monthly record, and projects the next six months beyond the latest release.
+        </p>
+      </div>
+      <div class="hero-panel">
+        <div class="stat-card">
+          <span class="stat-label">Latest monthly reading</span>
+          <strong id="latest-value">--</strong>
+          <span id="latest-date" class="stat-meta">Waiting for data...</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Next forecasted month</span>
+          <strong id="next-forecast-value">--</strong>
+          <span id="next-forecast-date" class="stat-meta">Waiting for model...</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel status-panel">
+      <div>
+        <h2>Refresh status</h2>
+        <p id="status-text">Loading NOAA monthly CO2 data...</p>
+      </div>
+      <button id="refresh-button" type="button">Refresh now</button>
+    </section>
+
+    <section class="panel chart-panel">
+      <div class="section-heading">
+        <h2>Observed and forecast CO2 concentration</h2>
+        <p>Observed monthly means are shown in blue. Six forecast months are shown in amber with a shaded 95% prediction interval.</p>
+      </div>
+      <canvas id="co2-chart" width="1280" height="620" aria-label="Monthly CO2 chart"></canvas>
+      <div class="legend">
+        <span><i class="legend-line actual"></i>Observed monthly mean</span>
+        <span><i class="legend-line fitted"></i>Model fit</span>
+        <span><i class="legend-line forecast"></i>Forecast</span>
+        <span><i class="legend-band interval"></i>95% prediction interval</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <section class="panel table-panel">
+        <div class="section-heading">
+          <h2>Six-month forecast</h2>
+          <p>Forecast months begin immediately after the latest NOAA monthly observation.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Forecast ppm</th>
+                <th>Lower 95%</th>
+                <th>Upper 95%</th>
+              </tr>
+            </thead>
+            <tbody id="forecast-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel notes-panel">
+        <div class="section-heading">
+          <h2>Method notes</h2>
+        </div>
+        <ul class="notes">
+          <li>Source: NOAA GML monthly mean CO2 dataset for Mauna Loa.</li>
+          <li>Refresh: The app fetches the live NOAA text feed every time the page loads.</li>
+          <li>Model: Additive Holt-Winters with 12-month seasonality.</li>
+          <li>Parameter fit: Grid search chooses alpha, beta, and gamma that minimize one-step-ahead SSE.</li>
+          <li>Prediction intervals: 95% bounds are derived from one-step residual variance and widen with forecast horizon.</li>
+          <li>Missing or negative monthly mean values are excluded before fitting.</li>
+        </ul>
+        <p class="source-link">
+          Data source:
+          <a href="https://gml.noaa.gov/webdata/ccgg/trends/co2/co2_mm_mlo.txt" target="_blank" rel="noreferrer">
+            NOAA monthly CO2 file
+          </a>
+        </p>
+      </section>
+    </section>
+  </main>
+
+  <noscript>
+    <p class="noscript">This website needs JavaScript enabled to fetch the live NOAA dataset and render the forecast chart.</p>
+  </noscript>
+
+  <script src="./app.js"></script>
+</body>
+</html>
