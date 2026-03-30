@@ -20,6 +20,15 @@ const monthFormatter = new Intl.DateTimeFormat("en-US", {
 
 let latestChartState = null;
 let resizeTimer = null;
+let latestObservationSnapshot = null;
+
+function formatRefreshTime(date) {
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit"
+  }).format(date);
+}
 
 function toMonthDate(year, month) {
   return new Date(Date.UTC(year, month - 1, 1));
@@ -329,7 +338,9 @@ function renderChart(observations, fittedValues, forecastRows) {
 }
 
 async function refreshData() {
+  const refreshStartedAt = new Date();
   refreshButton.disabled = true;
+  refreshButton.textContent = "Refreshing...";
   statusText.textContent = "Refreshing NOAA monthly CO2 data...";
 
   try {
@@ -372,11 +383,29 @@ async function refreshData() {
     renderForecastTable(forecastRows);
     renderChart(observations, model.fitted, forecastRows);
 
-    statusText.textContent = `Loaded ${observations.length} monthly observations through ${monthFormatter.format(observations[observations.length - 1].date)}. Forecast parameters: alpha ${model.alpha.toFixed(1)}, beta ${model.beta.toFixed(1)}, gamma ${model.gamma.toFixed(1)}. Intervals shown are approximate 95% prediction bounds.`;
+    const latestObservation = observations[observations.length - 1];
+    const refreshTime = formatRefreshTime(refreshStartedAt);
+    const didLatestValueChange = !latestObservationSnapshot
+      || latestObservationSnapshot.year !== latestObservation.year
+      || latestObservationSnapshot.month !== latestObservation.month
+      || latestObservationSnapshot.average !== latestObservation.average;
+
+    if (didLatestValueChange) {
+      statusText.textContent = `Refreshed at ${refreshTime}. Loaded ${observations.length} monthly observations through ${monthFormatter.format(latestObservation.date)} at ${formatPpm(latestObservation.average)}. Forecast parameters: alpha ${model.alpha.toFixed(1)}, beta ${model.beta.toFixed(1)}, gamma ${model.gamma.toFixed(1)}.`;
+    } else {
+      statusText.textContent = `Checked NOAA again at ${refreshTime}. The latest published monthly value is still ${monthFormatter.format(latestObservation.date)} at ${formatPpm(latestObservation.average)}, so the forecast did not change.`;
+    }
+
+    latestObservationSnapshot = {
+      year: latestObservation.year,
+      month: latestObservation.month,
+      average: latestObservation.average
+    };
   } catch (error) {
-    statusText.textContent = `Unable to refresh data: ${error.message}`;
+    statusText.textContent = `Unable to refresh data at ${formatRefreshTime(refreshStartedAt)}: ${error.message}`;
   } finally {
     refreshButton.disabled = false;
+    refreshButton.textContent = "Refresh now";
   }
 }
 
