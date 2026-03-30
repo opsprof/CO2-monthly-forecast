@@ -15,7 +15,8 @@ const chartContext = chartCanvas.getContext("2d");
 
 const monthFormatter = new Intl.DateTimeFormat("en-US", {
   month: "short",
-  year: "numeric"
+  year: "numeric",
+  timeZone: "UTC"
 });
 
 let latestChartState = null;
